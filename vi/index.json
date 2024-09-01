@@ -1,0 +1,85 @@
+[
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/",
+	"title": "Session Management",
+	"tags": [],
+	"description": "",
+	"content": "Làm việc với Amazon Load Balancer và EC2 Tổng quan Trong bài lab này, bạn sẽ tìm hiểu các khái niệm cơ bản và thực hành về Amazon Load Balancer và EC2. Thực hành tạo Load Balancer và cấu hình để đảm bảo rằng các máy chủ EC2 trong VPC có thể truy cập được từ internet.\nNội dung Giới thiệu Các bước chuẩn bị Tạo máy chủ EC2 Tạo Target Group, Đăng ký máy chủ EC2 vào Target Group Tạo Load Balancer Dọn dẹp tài nguyên "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/2-prerequiste/2.1-createec2/",
+	"title": "Chuẩn bị VPC và EC2",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ cần tạo một VPC có 2 subnet public. Sau đó tạo 2 EC2 Instance Linux nằm trong public subnet.\nTổng quan kiến trúc sau khi các bạn hoàn tất bước này sẽ như sau:\nĐể tìm hiểu cách tạo các EC2 instance và VPC với public/private subnet các bạn có thể tham khảo bài lab :\nGiới thiệu về Amazon EC2 Làm việc với Amazon VPC Nội dung Tạo VPC Tạo Public subnet Tạo Private subnet Tạo security group Tạo máy chủ Linux public Tạo máy chủ Windows private "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/1-introduce/",
+	"title": "Giới thiệu",
+	"tags": [],
+	"description": "",
+	"content": "Load Balancer (Bộ cân bằng tải) là một thiết bị hoặc phần mềm được sử dụng để phân phối lưu lượng truy cập mạng hoặc ứng dụng đều đặn giữa các máy chủ hoặc tài nguyên khác nhau. Mục tiêu chính của load balancer là đảm bảo rằng không có một máy chủ nào bị quá tải, từ đó cải thiện hiệu suất, độ tin cậy và khả năng mở rộng của hệ thống.\nElastic Load Balancing là một dịch vụ Load Balance của AWS, đảm bảo request được cần bằng giữa các target\nĐầy đủ các đặc tính cần thiết:\nHigh Availability Scalability: về lý thuyết là không giới hạn High Security: Nếu kết hợp với các dịch vụ khác như WAF, Security Group. ELB có thể dễ dàng kết hợp đa dạng backend sử dụng EC2, Container, Lambda. Các thành phần cơ bản của Load Balancer\nTarget Group: Nhóm máy chủ được load balancer quản lý và phân phối lưu lượng. Listener: Quy định cách mà load balancer nhận lưu lượng vào và chuyển nó đến các target group. Rule: Quy định cách mà load balancer chuyển lưu lượng đến các target group. Health Check: Kiểm tra trạng thái của các máy chủ trong target group. Load Balancer hoạt động như thế nào?\nMặc định Load Balancer sẽ phần phối request từ client đến các target trong 1 Target Group theo tỷ lệ cân bằng(round robin), kể cả khi target đó nằm trong nhiều hơn 1 target group.\nVí dụ: Trong hình trên mỗi instance sẽ nhận ~16,7% số request từ client.\nLoad Balancer có thể điều hướng tới nhiều hơn một target. Trong trường hợp multi-target, việc điều hướng tới target nào sẽ được quyết định bởi 1 số rule sau:\nListener port (người dùng request port nào thì LB sẽ điều hướng đến target group tương ứng) Path pattern (Application LB only) Fixed ratio. VD Target Group 01 nhận 20%, Target Group 02 nhận 80% traffic ( trong bài toán là chúng ta muốn release thử một phần chức năng mới đến 20% người dùng để lắng nghe ý kiến) "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/2-prerequiste/2.1-createec2/2.1.1-createvpc/",
+	"title": "Tạo VPC ",
+	"tags": [],
+	"description": "",
+	"content": "Tạo VPC Lab VPC Truy cập giao diện quản trị dịch vụ VPC Click Your VPC. Click Create VPC. Tại trang Create VPC. Tại mục Name tag điền Lab VPC. Tại mục IPv4 CIDR điền : 10.10.0.0/16. Click Create VPC. "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/2-prerequiste/",
+	"title": "Các bước chuẩn bị",
+	"tags": [],
+	"description": "",
+	"content": "Để tìm hiểu cách tạo các EC2 instance và VPC với public/private subnet các bạn có thể tham khảo bài lab :\nGiới thiệu về Amazon EC2 Làm việc với Amazon VPC Nội dung Chuẩn bị VPC và EC2 Instance Tạo Target group "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/2-prerequiste/2.2-createtg/",
+	"title": "Tạo Target Group",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Target group Trong bước này chúng ta sẽ tiến hành tạo Target Group.\nTruy cập vào giao diện quản lý target group\nỞ thanh điều hướng bên trái, click Target Groups.\nClick Create Target Group.\nClick chọn Target type là Instances\nĐặt tên cho Target Group. Click chọn port là 80 như trong security group đã quy định. Click chọn IPv4 Để mặc định VPC và Health check 7.Có thể tùy chỉnh các mục để xác định instance này có healthy hay unhealthy.\nClick Next Click chọn các instance để thêm vào target group. Click Include as pending below Các instance sẽ được chuyển vào Review targets Click Create target group "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/3-loadbalancer/",
+	"title": "Tạo kết nối Load Balancer",
+	"tags": [],
+	"description": "",
+	"content": "Trong bước này, chúng ta sẽ tiến hành tạo Load Balancer.\nTruy cập vào giao diện quản lý Load Balancer\nClick Load Balancer Click Create Load Balancer\nClick chọn Application Load Balancer Đặt tên cho Load Balancer\nĐể mặc định Scheme và Load balancer IP address type Chọn AZ phù hợp, theo lý thuyết thì nên chọn hết tất cả AZ để tối ưu. Click chọn Security group phù hợp\nTại Listeners and routing chọn Target group đã tạo ở 2.2 Click Create load balancer Đợi khoảng 3-5 phút để Status của Load Balancer thay đổi thành Active Sau khi đổi thành Active, click vào DNS name để truy cập vào trang web. Khi reload trang web, sẽ thấy chuyển đổi giữa các IP và tên Instance với tỉ lệ là 50%.\n"
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/2-prerequiste/2.1-createec2/2.1.2-createsecgroup/",
+	"title": "Tạo các security group",
+	"tags": [],
+	"description": "",
+	"content": "Tạo các security group Trong bước này chúng ta sẽ tiến hành tạo các security group được sử dụng cho các instance của chúng ta. Các bạn có thể thấy, các securiy group này sẽ không cần phải mở các port truyền thống để ssh như port 22 hoặc remote desktop thông qua port 3389.\nTạo security group cho Linux instance nằm trong public subnet Truy cập giao diện quản trị dịch vụ VPC Click Security Group. Click Create security group. Tại mục Security group name, điền SG Public Linux Instance. Tại mục Description, điền SG Public Linux Instance. Tại mục VPC, click dấu X để chọn lại Lab VPC bạn đã tạo cho bài lab này. Giữ nguyên Outbound rule, kéo chuột xuống phía dưới. Click Create security group. Các bạn có thể thấy, security group chúng ta tạo sử dụng cho Linux public instance sẽ không cần phải mở các port truyền thống để ssh như port 22.\nTạo security group cho Windows instance nằm trong private subnet Sau khi tạo thành công security group cho Linux instance nằm trong public subnet, click vào link Security Groups để quay trở lại danh sách Security groups. Click Create security group.\nTại mục Security group name, điền SG Private Windows Instance.\nTại mục Description, điền SG Private Windows Instance. Tại mục VPC, click dấu X để chọn lại Lab VPC bạn đã tạo cho bài lab này. Kéo chuột xuống phía dưới. Thêm Outbound rule cho phép kết nối TCP 443 tới 10.10.0.0/16 ( CIDR của Lab VPC chúng ta đã tạo) Click Create security group. Thêm Outbound rule cho phép listen port 80 tới bất cứ đâu "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/2-prerequiste/2.1-createec2/2.1.3-createec2linux/",
+	"title": "Tạo Public Linux EC2",
+	"tags": [],
+	"description": "",
+	"content": " Truy cập giao diện quản trị dịch vụ EC2 Click Instances. Click Launch instances. Đặt tên cho instance Tại trang Choose an Instance Type. Click chọn AMI phù hợp. Click chọn cấu trúc phù hợp. Tại trang Configure Instance Details Tại mục Instance Type chọn t2.micro. Tại mục Key pair name chọn key pair đã tạo hoặc tạo mới. Chọn Configure Security Group. Tại Network chọn Security Group đã tạo từ 2.1.2. Tại trang Configure Storage. Có thể tăng giảm dung lượng ổ đĩa của instance theo nhu cầu. Click vào phần Advanced detail để mở rộng. Tại User data Tại mục User data điền đoạn script sau: #!/bin/bash yum install -y httpd service httpd start chconfig httpd on cd /var/www/html echo \u0026#34;\u0026lt;html\u0026gt;\u0026#34; \u0026gt; index.html echo \u0026#34;\u0026lt;h1\u0026gt;Instance A\u0026lt;/h1\u0026gt;\u0026#34; \u0026gt;\u0026gt; index.html export TOKEN=`curl -X PUT \u0026#34;http://169.254.169.254/latest/api/token\u0026#34; -H \u0026#34;X-aws-ec2-metadata-token-ttl-seconds: 21600\u0026#34;` echo \u0026#34;\u0026lt;br\u0026gt;Private IP: \u0026#34; \u0026gt;\u0026gt; index.html curl -H \u0026#34;X-aws-ec2-metadata-token: $TOKEN\u0026#34; -v http://169.254.169.254/latest/meta-data/local-ipv4 \u0026gt;\u0026gt; index.html echo \u0026#34;\u0026lt;br\u0026gt;Public IP: \u0026#34; \u0026gt;\u0026gt; index.html curl -H \u0026#34;X-aws-ec2-metadata-token: $TOKEN\u0026#34; -v http://169.254.169.254/latest/meta-data/public-ipv4 \u0026gt;\u0026gt; index.html echo \u0026#34;\u0026lt;/html\u0026gt;\u0026#34; \u0026gt;\u0026gt; index.html Click Launch instance. Tạo thêm 1 instance server2 tương tự như trên. "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/4-cleanup/",
+	"title": "Dọn dẹp tài nguyên  ",
+	"tags": [],
+	"description": "",
+	"content": "Chúng ta sẽ tiến hành các bước sau để xóa các tài nguyên chúng ta đã tạo trong bài thực hành này.\nXóa EC2 instance Truy cập giao diện quản trị dịch vụ EC2 Click Instances. Click chọn cả 2 instance Public Linux Instance và Private Windows Instance. Click Instance state. Click Terminate instance, sau đó click Terminate để xác nhận. Xóa Load Balancer Truy cập giao diện Load balancers Click chọn Load Balancer muốn xóa. Click Actions. Click Delete load balancer. Gõ Confirm và click Confirm. Xóa Target Group Click chọn Target Group muốn xóa. Click Actions. Click Delete. Click Yes, delete. Xóa VPC Truy cập vào giao diện quản trị dịch vụ VPC Click Your VPCs. Click chọn Lab VPC. Click Actions. Click Delete VPC. Tại ô confirm, điền delete để xác nhận, click Delete để thực hiện xóa Lab VPC và các tài nguyên liên quan. "
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "https://thanhquang2004.github.io/load-balancer-workshop/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
